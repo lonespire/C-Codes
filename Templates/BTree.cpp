@@ -122,6 +122,7 @@ public:
         root->key[pos] = root->children[pos]->key.back();
         root->children[pos]->key.pop_back();
         root->children[pos]->key_count--;
+        return root;
     }
 
     Node *left_rotate(Node *root, int pos)
@@ -133,6 +134,7 @@ public:
         root->key[pos] = root->children[pos + 1]->key.front();
         root->children[pos + 1]->key.erase(root->children[pos + 1]->key.begin());
         root->children[pos + 1]->key_count--;
+        return root;
     }
 
     Node *merge(Node *root, int pos) // 合并pos和pos+1分支
@@ -152,6 +154,7 @@ public:
         root->children.erase(root->children.begin() + pos);
         root->children[pos] = p;
         root->key_count--;
+        return root;
     }
 
     Node *erase_maintain(Node *root, int pos)
