@@ -1,0 +1,14 @@
+#include <bits/stdc++.h>
+#define MAX_N 1000
+#define MAX_K 10
+using namespace std;
+
+int main()
+{
+    ::ios::sync_with_stdio(false), cin.tie(nullptr);
+    int a, b;
+    cin >> a >> b;
+    cout << a - (b - a * 2) / 2 << "\n"
+         << (b - a * 2) / 2;
+    return 0;
+}

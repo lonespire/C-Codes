@@ -1,0 +1,74 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    // ========== Auto Debug 核心配置：自动匹配调试规则 ==========
+    {
+      "name": "auto",
+      "type": "auto-debug",
+      "request": "launch",
+      "map": {
+        "*.cpp": "(gdb) 启动",
+        "*.c": "(gdb) 启动",
+        "*.py": "Python: 当前文件 (CMD终端)",
+        "*.ipynb": "Python: 调试 Jupyter Notebook" // 关联新增的Jupyter调试配置
+      }
+    },
+    // ========== 新增：Jupyter Notebook 调试配置 ==========
+    {
+      "name": "Python: 调试 Jupyter Notebook",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false // 可选：如需调试第三方库代码，设为false
+    },
+    // ========== C++ 调试配置（保持原样） ==========
+    {
+      "name": "(gdb) 启动",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/${fileBasenameNoExtension}.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "D:/msys64/mingw64/bin/gdb.exe",
+      "setupCommands": [
+        {
+          "description": "为 gdb 启用整齐打印",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "将反汇编风格设置为 Intel",
+          "text": "-gdb-set disassembly-flavor intel",
+          "ignoreFailures": true
+        }
+      ],
+      "preLaunchTask": "C/C++: g++.exe 生成活动文件"
+    },
+    // ========== Python 调试配置（保持原样） ==========
+    {
+      "name": "Python: 当前文件 (CMD终端)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}",
+        "DEBUG_MODE": "1"
+      },
+      "justMyCode": true,
+      "autoReload": {
+        "enable": true,
+        "directory": "${workspaceFolder}"
+      },
+      "args": [
+        "--config",
+        "${fileDirname}/config.ini"
+      ]
+    }
+  ]
+}

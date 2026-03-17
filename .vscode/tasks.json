@@ -1,0 +1,75 @@
+{
+    "tasks": [
+        {
+            // 任务类型，cppbuild 表示 C/C++ 编译任务
+            "type": "cppbuild",
+            // 任务的标签，在 VS Code 任务面板中显示
+            "label": "C/C++: g++.exe 生成活动文件",
+            // 执行的命令，这里是 g++ 编译器的路径
+            "command": "D:/msys64/mingw64/bin/g++.exe",
+            // 传递给命令的参数
+            "args": [
+                // 使用 C++20 标准
+                "-std=c++20",
+                // 启用彩色诊断信息
+                "-fdiagnostics-color=always",
+                // 生成调试信息
+                "-g",
+                // 当前活动文件
+                "${file}",
+                // 输出可执行文件的选项
+                "-o",
+                // 输出可执行文件的路径
+                "${workspaceFolder}/build/${fileBasenameNoExtension}.exe"
+            ],
+            // 任务执行的工作目录
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            // 错误匹配器，用于解析编译器输出的错误信息
+            "problemMatcher": [
+                "$gcc"
+            ],
+            // 任务组，这里设置为 build 组，并且是默认任务
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            // 任务的详细描述
+            "detail": "调试器生成的任务。"
+        }
+        // ,
+        // {
+        //     // 任务标签，用于清理 build 目录
+        //     "label": "clean",
+        //     // 任务类型，shell 表示执行 shell 命令
+        //     "type": "shell",
+        //     // 执行的命令，这里是 Windows 的 cmd.exe
+        //     "command": "${env:COMSPEC}",
+        //     "args": [
+        //         // 让 cmd 执行完命令后退出
+        //         "/c",
+        //         // 删除 build 目录（静默递归删除）
+        //         "rd /s /q \"${workspaceFolder}/build\""
+        //     ],
+        //     // 错误匹配器，这里无需错误匹配
+        //     "problemMatcher": []
+        // },
+        // {
+        //     // 任务标签，用于清理 output 目录
+        //     "label": "clean:output",
+        //     "type": "shell",
+        //     // 修正命令，确保在 Windows 下能正确执行
+        //     "command": "${env:COMSPEC}",
+        //     "args": [
+        //         "/c",
+        //         // 递归删除所有名为 output 的目录
+        //         "for /d /r \"${workspaceFolder}\" %d in (output) do rd /s /q \"%d\""
+        //     ],
+        //     // 错误匹配器
+        //     "problemMatcher": []
+        // }
+    ],
+    // 配置文件的版本号
+    "version": "2.0.0"
+}
