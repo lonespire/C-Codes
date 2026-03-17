@@ -71,10 +71,11 @@ public:
             n1->children = move(vector<Node *>(child->children.begin(), child->children.begin() + spos + 1));
             n2->children = move(vector<Node *>(child->children.begin() + spos + 1, child->children.end()));
         }
-        root->key.insert(root->key.begin() + pos, mid_key);
-        root->key_count++; // 更新key_count
+        root->key.insert(root->key.begin() + pos, mid_key); // bug考虑根节点情况
+        root->key_count++;                                  // 更新key_count
         root->children.insert(root->children.begin() + pos, n1);
         root->children[pos + 1] = n2;
+        child->children.clear();
         delete child;
         return root;
     }
@@ -89,7 +90,7 @@ public:
             pos++;
         if (pos < root->key_count && root->key[pos] == key)
             return root;
-        __insert(root->children[pos], key);
+        root->children[pos] = __insert(root->children[pos], key);
         return insert_maintain(root, root->children[pos], pos);
     }
 
@@ -104,9 +105,116 @@ public:
         }
         display(Root);
     }
+    void erase_pos(Node *root, int pos) // 此时为终端节点删除情况,该节点无子树
+    {
+        root->key.erase(root->key.begin() + pos);
+        root->key_count--;
+    }
 
-    
+    Node *right_rotate(Node *root, int pos)
+    {
+        // 将左孩子的最后一个分支插入到有孩子最前面的分支
+        root->children[pos + 1]->children.insert(root->children[pos + 1]->children.begin(), root->children[pos]->children.back());
+        root->children[pos]->children.pop_back();
+        // 左孩子最后一个key移动到根节点pos处，根节点pos处key插入到右孩子key的最前面
+        root->children[pos + 1]->key.insert(root->children[pos + 1]->key.begin(), root->key[pos]);
+        root->children[pos + 1]->key_count++;
+        root->key[pos] = root->children[pos]->key.back();
+        root->children[pos]->key.pop_back();
+        root->children[pos]->key_count--;
+    }
 
+    Node *left_rotate(Node *root, int pos)
+    {
+        root->children[pos]->children.insert(root->children[pos]->children.end(), root->children[pos + 1]->children.front());
+        root->children[pos + 1]->children.erase(root->children[pos + 1]->children.begin());
+        root->children[pos]->key.push_back(root->key[pos]);
+        root->children[pos]->key_count++;
+        root->key[pos] = root->children[pos + 1]->key.front();
+        root->children[pos + 1]->key.erase(root->children[pos + 1]->key.begin());
+        root->children[pos + 1]->key_count--;
+    }
+
+    Node *merge(Node *root, int pos) // 合并pos和pos+1分支
+    {
+        Node *p = Node::getNewNode(MAX_M);
+        p->key.insert(p->key.begin(), make_move_iterator(root->children[pos]->key.begin()), make_move_iterator(root->children[pos]->key.end()));
+        p->children.insert(p->children.begin(), make_move_iterator(root->children[pos]->children.begin()), make_move_iterator(root->children[pos]->children.end()));
+        p->key.push_back(root->key[pos]);
+        p->key.insert(p->key.end(), make_move_iterator(root->children[pos + 1]->key.begin()), make_move_iterator(root->children[pos + 1]->key.end()));
+        p->children.insert(p->children.end(), make_move_iterator(root->children[pos + 1]->children.begin()), make_move_iterator(root->children[pos + 1]->children.end()));
+        p->key_count = p->key.size();
+        root->children[pos]->children.clear();
+        root->children[pos + 1]->children.clear();
+        delete root->children[pos];
+        delete root->children[pos + 1];
+        root->key.erase(root->key.begin() + pos);
+        root->children.erase(root->children.begin() + pos);
+        root->children[pos] = p;
+        root->key_count--;
+    }
+
+    Node *erase_maintain(Node *root, int pos)
+    {
+        int low_count = (MAX_M + 1) / 2 - 1;
+        if (root->children[pos]->key_count >= low_count)
+            return root;
+        if (root->key_count == 0)
+        {
+            right_rotate(root, pos - 1);
+        }
+        else if (pos < root->key_count && root->children[pos + 1]->key_count > low_count)
+        {
+            left_rotate(root, pos);
+        }
+        else
+        {
+            if (pos > 0)
+                merge(root, pos - 1); // merge(,j)   即合并(j,j+1)
+            else
+                merge(root, pos);
+        }
+        return root;
+    }
+    Node *__erase(Node *root, int key)
+    {
+        if (root == NULL)
+            return root;
+        int pos = 0;
+        while (pos < root->key_count && root->key[pos] < key)
+            pos++;
+        if (root->children.size() == 0) // 没有子树，终端节点情况
+        {
+            if (root->key[pos] == key)
+                erase_pos(root, pos);
+            return root;
+        }
+        else // 非终端节点
+        {
+            if (pos < root->key_count && root->key[pos] == key)
+            {
+                Node *p = root->children[pos];
+                while (p->children.size())
+                    p = p->children.back();
+                swap(root->key[pos], p->key.back());
+            }
+            root->children[pos] = __erase(root->children[pos], key);
+        }
+        return erase_maintain(root, pos);
+    }
+
+    void erase(int key)
+    {
+        this->Root = __erase(this->Root, key);
+        if (this->Root->key_count == 0)
+        {
+            Node *p = this->Root->children[0];
+            this->Root->children.clear();
+            delete this->Root;
+            this->Root = p; // bug
+        }
+        display(this->Root);
+    }
 
     // void display(Node *node, int depth = 0)
     // {
@@ -151,10 +259,10 @@ public:
             cout << endl;
             return;
         }
-        for (auto &i : root->children)
+        for (int i = 0; i < root->children.size(); i++)
         {
-            if (i->key_count > 0)
-                printf("%4d ", i->key[0]);
+            if (root->children[i]->key_count > 0)
+                printf("%4d ", root->children[i]->key[0]);
             else
                 printf("   -");
         }
@@ -165,9 +273,10 @@ public:
         if (root == NULL)
             return;
         output_node(root);
-        for (auto &i : root->children)
+        for (size_t i = 0; i < root->children.size(); i++)
         {
-            display(i);
+            if (root->children[i])
+                display(root->children[i]);
         }
     }
 };
@@ -175,64 +284,83 @@ public:
 int main()
 {
     // 测试1：升序插入
-    cout << "=== Test 1: Ascending Order ===" << endl;
-    Btree test1(5);
-    vector<int> nums1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    for (auto i : nums1)
-    {
-        cout << "insert:(" << i << ")intoBTree" << endl;
-        test1.insert(i);
-        cout << endl
-             << endl;
-    }
+    // cout << "=== Test 1: Ascending Order ===" << endl;
+    // Btree test1(5);
+    // vector<int> nums1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    // for (auto i : nums1)
+    // {
+    //     cout << "insert:(" << i << ")intoBTree" << endl;
+    //     test1.insert(i);
+    //     cout << endl
+    //          << endl;
+    // }
 
-    // 测试2：降序插入
-    cout << "\n=== Test 2: Descending Order ===" << endl;
-    Btree test2(5);
-    vector<int> nums2 = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-    for (auto i : nums2)
-    {
-        cout << "insert:(" << i << ")intoBTree" << endl;
-        test2.insert(i);
-        cout << endl
-             << endl;
-    }
+    // // 测试2：降序插入
+    // cout << "\n=== Test 2: Descending Order ===" << endl;
+    // Btree test2(5);
+    // vector<int> nums2 = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+    // for (auto i : nums2)
+    // {
+    //     cout << "insert:(" << i << ")intoBTree" << endl;
+    //     test2.insert(i);
+    //     cout << endl
+    //          << endl;
+    // }
 
-    // 测试3：随机插入
-    cout << "\n=== Test 3: Random Order ===" << endl;
-    Btree test3(5);
-    vector<int> nums3 = {50, 25, 75, 10, 30, 60, 80, 5, 15, 27, 35, 55, 65, 77, 85};
-    for (auto i : nums3)
-    {
-        cout << "insert:(" << i << ")intoBTree" << endl;
-        test3.insert(i);
-        cout << endl
-             << endl;
-    }
+    // // 测试3：随机插入
+    // cout << "\n=== Test 3: Random Order ===" << endl;
+    // Btree test3(5);
+    // vector<int> nums3 = {50, 25, 75, 10, 30, 60, 80, 5, 15, 27, 35, 55, 65, 77, 85};
+    // for (auto i : nums3)
+    // {
+    //     cout << "insert:(" << i << ")intoBTree" << endl;
+    //     test3.insert(i);
+    //     cout << endl
+    //          << endl;
+    // }
 
-    // 测试4：重复key测试
-    cout << "\n=== Test 4: Duplicate Keys ===" << endl;
-    Btree test4(5);
-    vector<int> nums4 = {10, 20, 10, 30, 20, 40, 30, 50};
-    for (auto i : nums4)
-    {
-        cout << "insert:(" << i << ")intoBTree" << endl;
-        test4.insert(i);
-        cout << endl
-             << endl;
-    }
+    // // 测试4：重复key测试
+    // cout << "\n=== Test 4: Duplicate Keys ===" << endl;
+    // Btree test4(5);
+    // vector<int> nums4 = {10, 20, 10, 30, 20, 40, 30, 50};
+    // for (auto i : nums4)
+    // {
+    //     cout << "insert:(" << i << ")intoBTree" << endl;
+    //     test4.insert(i);
+    //     cout << endl
+    //          << endl;
+    // }
 
-    // 测试5：边界情况测试
-    cout << "\n=== Test 5: Edge Cases ===" << endl;
-    Btree test5(5);
+    // // 测试5：边界情况测试
+    // cout << "\n=== Test 5: Edge Cases ===" << endl;
+    // Btree test5(5);
+    // vector<int> nums5 = {100, 50, 150, 25, 75, 125, 175, 12, 37, 62, 87, 112, 137, 162, 187};
+    // for (auto i : nums5)
+    // {
+    //     cout << "insert:(" << i << ")intoBTree" << endl;
+    //     test5.insert(i);
+    //     cout << endl
+    //          << endl;
+    // }
+
+    // ****************************insert test*************************************************
+    Btree test_tree(4);
     vector<int> nums5 = {100, 50, 150, 25, 75, 125, 175, 12, 37, 62, 87, 112, 137, 162, 187};
     for (auto i : nums5)
     {
         cout << "insert:(" << i << ")intoBTree" << endl;
-        test5.insert(i);
+        test_tree.insert(i);
         cout << endl
              << endl;
     }
-
+    for (int i = 0; i < 10; i++)
+    {
+        int k;
+        cin >> k;
+        cout << "insert:(" << k << ")" << endl;
+        test_tree.erase(k);
+        cout << endl
+             << endl;
+    }
     return 0;
 }
