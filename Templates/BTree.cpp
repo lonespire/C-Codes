@@ -71,10 +71,10 @@ public:
             n1->children = move(vector<Node *>(child->children.begin(), child->children.begin() + spos + 1));
             n2->children = move(vector<Node *>(child->children.begin() + spos + 1, child->children.end()));
         }
-        root->key.insert(root->key.begin() + pos, mid_key); // bug考虑根节点情况
-        root->key_count++;                                  // 更新key_count
-        root->children.insert(root->children.begin() + pos, n1);
-        root->children[pos + 1] = n2;
+        root->key.insert(root->key.begin() + pos, mid_key);
+        root->key_count++;
+        root->children[pos] = n1;
+        root->children.insert(root->children.begin() + pos + 1, n2);
         child->children.clear();
         delete child;
         return root;
@@ -249,38 +249,48 @@ public:
     //     cout << "B-Tree Structure:" << endl;
     //     display(root, 0);
     // }
-    void output_node(Node *root)
-    {
-        cout << "key_counts:" << root->key_count << ":";
-        for (int i = 0; i < root->key_count; i++) // 只遍历有效的key
-        {
-            printf("%4d ", root->key[i]);
-        }
-        printf(" | ");
-        if (root->children.size() == 0)
-        {
-            cout << endl;
-            return;
-        }
-        for (int i = 0; i < root->children.size(); i++)
-        {
-            if (root->children[i]->key_count > 0)
-                printf("%4d ", root->children[i]->key[0]);
-            else
-                printf("   -");
-        }
-        cout << "******" << endl;
-    }
     void display(Node *root)
     {
         if (root == NULL)
-            return;
-        output_node(root);
-        for (size_t i = 0; i < root->children.size(); i++)
         {
-            if (root->children[i])
-                display(root->children[i]);
+            cout << "Tree is empty!" << endl;
+            return;
         }
+
+        queue<pair<Node *, int>> q;
+        q.push({root, 0});
+        int current_level = -1;
+
+        while (!q.empty())
+        {
+            auto [node, level] = q.front();
+            q.pop();
+
+            if (level > current_level)
+            {
+                if (current_level >= 0)
+                    cout << endl;
+                cout << "Level " << level << ": ";
+                current_level = level;
+            }
+
+            cout << "[";
+            for (int i = 0; i < node->key_count; i++)
+            {
+                cout << node->key[i];
+                if (i < node->key_count - 1)
+                    cout << ", ";
+            }
+            cout << "] ";
+
+            for (size_t i = 0; i < node->children.size(); i++)
+            {
+                if (node->children[i])
+                    q.push({node->children[i], level + 1});
+            }
+        }
+        cout << endl
+             << endl;
     }
 };
 
@@ -348,11 +358,20 @@ int main()
 
     // ****************************insert test*************************************************
     Btree test_tree(4);
-    vector<int> nums5 = {100, 50, 150, 25, 75, 125, 175, 12, 37, 62, 87, 112, 137, 162, 187};
-    for (auto i : nums5)
+    // vector<int> nums5 = {100, 50, 150, 25, 75, 125, 175, 12, 37, 62, 87, 112, 137, 162, 187};
+    // for (auto i : nums5)
+    // {
+    // cout << "insert:(" << i << ")intoBTree" << endl;
+    // test_tree.insert(i);
+    // cout << endl
+    //      << endl;
+    // }
+    for (int i = 0; i < 10; i++)
     {
-        cout << "insert:(" << i << ")intoBTree" << endl;
-        test_tree.insert(i);
+        int temp;
+        cin >> temp;
+        cout << "insert:(" << temp << ")intoBTree" << endl;
+        test_tree.insert(temp);
         cout << endl
              << endl;
     }
