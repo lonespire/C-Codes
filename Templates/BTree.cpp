@@ -50,13 +50,13 @@ public:
     }
     Node *insert_maintain(Node *root, Node *child, int pos)
     {
-        if (child->key_count < MAX_M - 1)
+        if (child->key_count < MAX_M)
             return root;
         int spos = MAX_M / 2;
         Node *n1 = Node::getNewNode(MAX_M);
         Node *n2 = Node::getNewNode(MAX_M);
         n1->key_count = spos;
-        n2->key_count = MAX_M - 2 - n1->key_count;
+        n2->key_count = MAX_M - 1 - n1->key_count;
 
         // 先保存中间key，再进行move操作
         int mid_key = child->key[spos];
@@ -97,7 +97,7 @@ public:
     void insert(int key)
     {
         this->Root = __insert(this->Root, key);
-        if (this->Root->key_count == MAX_M - 1)
+        if (this->Root->key_count == MAX_M)
         {
             Node *p = Node::getNewNode(MAX_M);
             p->children.emplace_back(move(Root));
@@ -113,10 +113,11 @@ public:
 
     Node *right_rotate(Node *root, int pos)
     {
-        // 将左孩子的最后一个分支插入到有孩子最前面的分支
-        root->children[pos + 1]->children.insert(root->children[pos + 1]->children.begin(), root->children[pos]->children.back());
-        root->children[pos]->children.pop_back();
-        // 左孩子最后一个key移动到根节点pos处，根节点pos处key插入到右孩子key的最前面
+        if (!root->children[pos]->children.empty())
+        {
+            root->children[pos + 1]->children.insert(root->children[pos + 1]->children.begin(), root->children[pos]->children.back());
+            root->children[pos]->children.pop_back();
+        }
         root->children[pos + 1]->key.insert(root->children[pos + 1]->key.begin(), root->key[pos]);
         root->children[pos + 1]->key_count++;
         root->key[pos] = root->children[pos]->key.back();
@@ -127,8 +128,11 @@ public:
 
     Node *left_rotate(Node *root, int pos)
     {
-        root->children[pos]->children.insert(root->children[pos]->children.end(), root->children[pos + 1]->children.front());
-        root->children[pos + 1]->children.erase(root->children[pos + 1]->children.begin());
+        if (!root->children[pos + 1]->children.empty())
+        {
+            root->children[pos]->children.insert(root->children[pos]->children.end(), root->children[pos + 1]->children.front());
+            root->children[pos + 1]->children.erase(root->children[pos + 1]->children.begin());
+        }
         root->children[pos]->key.push_back(root->key[pos]);
         root->children[pos]->key_count++;
         root->key[pos] = root->children[pos + 1]->key.front();
@@ -159,23 +163,24 @@ public:
 
     Node *erase_maintain(Node *root, int pos)
     {
-        int low_count = (MAX_M + 1) / 2 - 1;
+        int low_count = (MAX_M + 1) / 2 - 1; // bug
         if (root->children[pos]->key_count >= low_count)
             return root;
-        if (root->key_count == 0)
+
+        if (pos > 0 && root->children[pos - 1]->key_count > low_count)
         {
-            right_rotate(root, pos - 1);
+            root = right_rotate(root, pos - 1);
         }
         else if (pos < root->key_count && root->children[pos + 1]->key_count > low_count)
         {
-            left_rotate(root, pos);
+            root = left_rotate(root, pos);
         }
         else
         {
             if (pos > 0)
-                merge(root, pos - 1); // merge(,j)   即合并(j,j+1)
+                root = merge(root, pos - 1); // merge(,j)   即合并(j,j+1)
             else
-                merge(root, pos);
+                root = merge(root, pos);
         }
         return root;
     }
@@ -358,28 +363,28 @@ int main()
 
     // ****************************insert test*************************************************
     Btree test_tree(4);
-    // vector<int> nums5 = {100, 50, 150, 25, 75, 125, 175, 12, 37, 62, 87, 112, 137, 162, 187};
-    // for (auto i : nums5)
-    // {
-    // cout << "insert:(" << i << ")intoBTree" << endl;
-    // test_tree.insert(i);
-    // cout << endl
-    //      << endl;
-    // }
-    for (int i = 0; i < 10; i++)
+    vector<int> nums5 = {100, 50, 150, 25, 75, 125, 175, 12, 37, 62, 87, 112, 137, 162, 187};
+    for (auto i : nums5)
     {
-        int temp;
-        cin >> temp;
-        cout << "insert:(" << temp << ")intoBTree" << endl;
-        test_tree.insert(temp);
+        cout << "insert:(" << i << ")intoBTree" << endl;
+        test_tree.insert(i);
         cout << endl
              << endl;
     }
-    for (int i = 0; i < 10; i++)
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     int temp;
+    //     cin >> temp;
+    //     cout << "insert:(" << temp << ")intoBTree" << endl;
+    //     test_tree.insert(temp);
+    //     cout << endl
+    //          << endl;
+    // }
+    for (;test_tree.Root;)
     {
         int k;
         cin >> k;
-        cout << "insert:(" << k << ")" << endl;
+        cout << "erase:(" << k << ")" << endl;
         test_tree.erase(k);
         cout << endl
              << endl;
