@@ -30,7 +30,7 @@
       "program": "${workspaceFolder}/build/${fileBasenameNoExtension}.exe",
       "args": [],
       "stopAtEntry": false,
-      "cwd": "${fileDirname}",
+      "cwd": "${workspaceFolder}",
       "environment": [],
       "externalConsole": false,
       "MIMode": "gdb",
@@ -45,9 +45,17 @@
           "description": "将反汇编风格设置为 Intel",
           "text": "-gdb-set disassembly-flavor intel",
           "ignoreFailures": true
+        },
+        {
+          "description": "防止 gdb 打开标准库函数",
+          "text": "-interpreter-exec console \"skip -rfu std::.*\"",
+          "ignoreFailures": false
         }
       ],
-      "preLaunchTask": "C/C++: g++.exe 生成活动文件"
+      "preLaunchTask": "C/C++: g++.exe 生成活动文件",
+      "sourceFileMap": {
+        "D:/msys64": "${workspaceFolder}"
+      }
     },
     // ========== Python 调试配置（保持原样） ==========
     {
