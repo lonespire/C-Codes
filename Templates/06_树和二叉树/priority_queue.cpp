@@ -2,109 +2,120 @@
 using namespace std;
 typedef long long ll;
 
-struct PriorityQueue
-{
-    vector<int> data;
-    int size, n;
-    PriorityQueue(int size) : data(size + 1), size(size), n(0) {}
-    PriorityQueue(vector<int> a) : data(a.size()), size(a.size() + 1), n(a.size() - 1) { data = a; }
-};
-void clearPQ(PriorityQueue &p)
-{
-    if (p.data.empty())
-        return;
-    p.data.clear();
-    return;
-}
-void up_update(PriorityQueue &p, int i)
-{
-    if (i == 1)
-        return;
-    if (p.data[i] > p.data[i / 2])
-    {
-        swap(p.data[i], p.data[i / 2]);
-        up_update(p, i / 2);
-    }
-}
-void down_update(PriorityQueue &p, int i)
-{
-    if (2 * i > p.data.size() - 1)
-        return;
-    int ind = i;
-    if (p.data[ind * 2] > p.data[ind])
-        ind *= 2;
-    if (ind + 1 <= p.data.size() - 1 && p.data[ind + 1] > p.data[ind])
-        ind++;
-    if (i == ind)
-        return;
-    swap(p.data[i], p.data[ind]);
-    down_update(p, ind);
-}
-bool push(PriorityQueue &p, int x)
-{
-    if (p.n + 1 == p.size)
-        return 0;
-    p.n++;
-    p.data[p.n] = x;
-    up_update(p, p.n);
-    return 1;
-}
-bool pop(PriorityQueue &p)
-{
-    if (p.data.empty())
-        return 0;
-    p.data[1] = p.data[p.n];
-    p.n--;
-    down_update(p, 1);
-    return 1;
-}
-void output(PriorityQueue p)
-{
-    for (int i = 1; i <= p.n; i++)
-        cout << p.data[i] << " ";
-    cout << '\n';
-}
-// PriorityQueue prioQbuild_pq(vector<int> a)
+// struct Node
 // {
-//     PriorityQueue ans(a);
-//     for (int i = (a.size() - 1) / 2; i >= 1; i--)
-//         down_update(ans, i);
-//     return ans;
-// }
+// };
+template <typename T, typename Compare = less<T>>
+class priorityqueue
+{
+private:
+    Compare cmp;
+
+public:
+#define ROOT 1
+    // #define cmp >
+
+    int real_size = 0;
+    vector<T> data;
+    priorityqueue(int n) { data.resize(4 * n, 0); }
+    void clear()
+    {
+        data.clear();
+        real_size = 0;
+    }
+    bool empty()
+    {
+        return this->real_size == 0;
+    }
+    bool full()
+    {
+        return data.size() == this->real_size;
+    }
+    T top()
+    {
+        return this->data[ROOT];
+    }
+
+    int get_father_ind(int ind)
+    {
+        return ind / 2;
+    }
+    void up_maintain(int ind)
+    {
+        while (ind != ROOT)
+        {
+            if (cmp(this->data[ind], this->data[this->get_father_ind(ind)]))
+            {
+                swap(this->data[ind], this->data[this->get_father_ind(ind)]);
+                ind = this->get_father_ind(ind);
+            }
+            else
+                break;
+        }
+        return;
+    }
+    bool push(T x)
+    {
+        if (this->full())
+            return 0;
+        this->real_size++;
+        this->data[this->real_size] = x;
+        up_maintain(this->real_size);
+        return 1;
+    }
+
+    void down_maintain(int ind)
+    {
+        int final_ind = ind;
+        while (ind * 2 <= this->real_size)
+        {
+            if (cmp(this->data[ind * 2], this->data[final_ind]))
+                final_ind = ind * 2;
+            if (ind * 2 + 1 <= this->real_size && cmp(this->data[ind * 2 + 1], this->data[final_ind]))
+                final_ind = ind * 2 + 1;
+            if (final_ind == ind)
+                break;
+            swap(this->data[ind], this->data[final_ind]);
+            ind = final_ind;
+        }
+        return;
+    }
+    bool pop()
+    {
+        if (this->empty())
+            return 0;
+        this->data[ROOT] = this->data[this->real_size];
+        this->real_size--;
+        down_maintain(ROOT);
+        return 1;
+    }
+};
+
 int main()
 {
-    // ::ios::sync_with_stdio(false), cin.tie(nullptr);
-    // int op, x;
-    PriorityQueue p(100);
-    int n;
-    cin >> n;
-    vector<int> test(n);
-    for (auto &i : test)
-        i = rand() % 100000;
-    PriorityQueue ans(test);
-    for (auto i : ans.data)
-        cout << i << " ";
-    cout << endl;
-    for (int i = (test.size() - 1) / 2; i >= 1; i--)
-        down_update(ans, i);
-    // while (cin >> op)
-    // {
-    //     if (op == 1)
-    //     {
-    //         cin >> x;
-    //         printf("insert%din\n", x);
-    //         push(p, x);
-    //         output(p);
-    //     }
-    //     else
-    //     {
-    //         printf("pop%din top\n", p.data[1]);
-    //         pop(p);
-    //         output(p);
-    //     }
-    // }
-    output(ans);
-    for (auto i : test)
-        cout << i << " ";
+    priorityqueue<float, greater<float>> pq(100);
+    while (1)
+    {
+        int temp;
+        cin >> temp;
+        if (temp == 0)
+            break;
+        cout << "插入：" << temp << endl;
+        if (pq.push(temp))
+            cout << "插入成功" << endl;
+        else
+            cout << "插入失败" << endl;
+    }
+    cout << endl
+         << endl
+         << endl;
+    while (!pq.empty())
+    {
+        cout << "共" << pq.real_size << ":" << pq.top() << endl;
+        if (pq.pop())
+            cout << "推出成功" << endl;
+        else
+            break;
+    }
     return 0;
 }

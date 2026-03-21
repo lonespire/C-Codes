@@ -9,17 +9,14 @@
             "command": "D:/msys64/mingw64/bin/g++.exe",
             // 传递给命令的参数
             "args": [
-                // 使用 C++20 标准
                 "-std=c++20",
-                // 启用彩色诊断信息
                 "-fdiagnostics-color=always",
-                // 生成调试信息
-                "-g",
-                // 当前活动文件
+                "-g3",
+                "-ggdb",
+                "-O0",
+                "-fno-omit-frame-pointer",
                 "${file}",
-                // 输出可执行文件的选项
                 "-o",
-                // 输出可执行文件的路径
                 "${workspaceFolder}/build/${fileBasenameNoExtension}.exe"
             ],
             // 任务执行的工作目录
