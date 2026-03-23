@@ -17,7 +17,17 @@ public:
 
     int real_size = 0;
     vector<T> data;
-    priorityqueue(int n) { data.resize(4 * n, 0); }
+    priorityqueue(int n) { data.resize(4 * n); }
+    priorityqueue(vector<T> &arr)
+    {
+        data = arr;
+        this->real_size = arr.size();
+        data.insert(data.begin(), T{});
+        for (int i = this->real_size / 2; i >= 1; i--)
+        {
+            down_maintain(i);
+        }
+    }
     void clear()
     {
         data.clear();
@@ -90,22 +100,33 @@ public:
         return 1;
     }
 };
-
+vector<int> generateRandom(int n, int minVal = 0, int maxVal = 100)
+{
+    srand(time(0)); // 设置种子
+    vector<int> result(n);
+    for (int i = 0; i < n; i++)
+        result[i] = rand() % (maxVal - minVal + 1) + minVal;
+    return result;
+}
 int main()
 {
-    priorityqueue<float, greater<float>> pq(100);
-    while (1)
-    {
-        int temp;
-        cin >> temp;
-        if (temp == 0)
-            break;
-        cout << "插入：" << temp << endl;
-        if (pq.push(temp))
-            cout << "插入成功" << endl;
-        else
-            cout << "插入失败" << endl;
-    }
+    auto cmp = [](int a, int b)
+    { return a > b; };
+    vector<int> temp = generateRandom(20);
+    priorityqueue<int, decltype(cmp)> pq(temp);
+    // while (1)
+    // {
+    //     int temp;
+    //     cin >> temp;
+    //     if (temp == 0)
+    //         break;
+    //     cout << "插入：" << temp << endl;
+    //     if (pq.push(temp))
+    //         cout << "插入成功" << endl;
+    //     else
+    //         cout << "插入失败" << endl;
+    // }
+
     cout << endl
          << endl
          << endl;

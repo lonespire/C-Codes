@@ -45,26 +45,9 @@
           "description": "将反汇编风格设置为 Intel",
           "text": "-gdb-set disassembly-flavor intel",
           "ignoreFailures": true
-        },
-        {
-          "description": "防止 gdb 打开标准库函数",
-          "text": "-interpreter-exec console \"skip -rfu std::.*\"",
-          "ignoreFailures": false
         }
       ],
-      "preLaunchTask": "C/C++: g++.exe 生成活动文件",
-      "logging": {
-        "moduleLoad": false,
-        "trace": true,
-        "engineLogging": false,
-        "programOutput": true,
-        "exceptions": false
-      },
-      "sourceFileMap": {
-        "D:/msys64": "${workspaceFolder}",
-        "d:": "D:",
-        "D:": "D:"
-      }
+      "preLaunchTask": "C/C++: g++.exe 生成活动文件"
     },
     // ========== Python 调试配置（保持原样） ==========
     {
