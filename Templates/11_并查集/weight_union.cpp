@@ -35,9 +35,9 @@ public:
             fa[root] = i;
             root = temp;
         }
-        for (int i = path.size() - 1; i >= 0; i--)
+        for (int i = path.size() - 2; i >= 0; i--)
         {
-            val[path[i]] = (val[path[i]] + val[fa[path[i]]]) % 3;
+            val[path[i]] = (val[path[i]] + val[path[i+1]]) % 3;
         }
         return i;
     }
@@ -64,7 +64,7 @@ public:
         {
             fa[bb] = aa;
             size[aa] = size[bb] + size[aa];
-            val[bb] = (t - val[b] + val[a] + 3) % 3;
+            val[bb] = (-t - val[b] + val[a] + 3) % 3;
         }
         return true;
     }
@@ -86,7 +86,7 @@ int main()
         else
         {
             if (u.find(b) != u.find(c))
-                cout << "Unkown" << endl;
+                cout << "Unknown" << endl;
             else
             {
                 int temp = (u.val[b] - u.val[c] + 3) % 3;
