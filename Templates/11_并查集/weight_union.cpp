@@ -1,3 +1,7 @@
+/*
+参考例题 HZOJ #72. 练习题2：猜拳
+https://oj.haizeix.com/problem/72
+*/
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -35,9 +39,10 @@ public:
             fa[root] = i;
             root = temp;
         }
+        path.push_back(i);
         for (int i = path.size() - 2; i >= 0; i--)
         {
-            val[path[i]] = (val[path[i]] + val[path[i+1]]) % 3;
+            val[path[i]] = (val[path[i]] + val[path[i + 1]]) % 3;
         }
         return i;
     }
