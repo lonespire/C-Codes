@@ -24,8 +24,9 @@ int readStudents(vector<Student> &stu, int maxSize, string filename)
 
     char buff[256];
     ifs.getline(buff, 255); // 读取表头，丢弃
-    while (ifs.getline(buff, 255))
+    for (int i = 0; i < 10; i++)//我就读了前十个
     {
+        ifs.getline(buff, 255);
         Student A;
         char id_str[20], name_str[50], phone_str[20];
         int s1, s2, s3, s4, s5, exam;

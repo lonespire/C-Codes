@@ -142,7 +142,7 @@ public:
         Student s;
         char small[256];
         ifs.getline(small, 255); // 读取表头，丢弃
-        while (!ifs.eof())
+        for(int i=0;i<10;i++)//依旧只读取前十个
         {
             Student s;
             s.readStream(ifs);
