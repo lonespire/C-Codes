@@ -27,6 +27,9 @@ obj/
 .DS_Store
 Thumbs.db
 
+# 项目文件夹
+class/
+
 # 临时文件
 *.tmp
 *.temp
