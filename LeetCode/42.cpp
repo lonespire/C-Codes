@@ -1,3 +1,4 @@
+// https://leetcode.cn/problems/trapping-rain-water/description/
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -19,6 +20,20 @@ public:
                     ans += (min(height[q.back()], height[i]) - min_height) * (i - q.back() - 1);
             }
             q.push_back(i);
+        }
+        return ans;
+    }
+};
+class Solution // 该方法采用双指针法
+{
+public:
+    int trap(vector<int> &height)
+    {
+        int ans = 0, lMAX = 0, rMAX = 0, l = 0, r = height.size() - 1;
+        while (l < r)
+        {
+            lMAX = max(lMAX, height[l]), rMAX = max(rMAX, height[r]);
+            lMAX < rMAX ? (ans += (lMAX - height[l++])) : (ans += (rMAX - height[r--]));
         }
         return ans;
     }
