@@ -51,7 +51,10 @@ MST get_MST(vector<vector<int>> &edges, int start)
             }
         }
         if (minindex == -1)
+        {
             is_valid = false;
+            break;
+        }
         // 找到要加入的权值最小点minidex
         lowcost[minindex] = 0;
         parent[minindex] = adjvec[minindex];
