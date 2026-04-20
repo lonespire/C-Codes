@@ -26,6 +26,11 @@ public:
         edges[edgeCount].next = head[from];
         head[from] = edgeCount++;
     }
+    ~ForwardStar()
+    {
+        delete[] edges;
+        delete[] head;
+    }
 };
 int main()
 {
