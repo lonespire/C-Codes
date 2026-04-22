@@ -8,6 +8,7 @@ void Dijkstra(vector<vector<int>> &adj, vector<int> &dist, vector<int> &path, in
     int n = adj.size();
     path.resize(adj.size(), -1);
     dist.resize(adj.size(), INF);
+    vector<bool> visited(n + 1, false);
     dist[start] = 0;
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q; // pair(节点到start最短距离,节点)
     q.push({0, start});
@@ -15,8 +16,9 @@ void Dijkstra(vector<vector<int>> &adj, vector<int> &dist, vector<int> &path, in
     {
         pair<int, int> top = q.top();
         q.pop();
-        if (top.first > dist[top.second])
+        if (visited[top.second] || top.first > dist[top.second])
             continue;
+        visited[top.second] = true;
         for (int i = 0; i < n; i++)
         {
             if (adj[top.second][i] != INF && dist[i] > top.first + adj[top.second][i])
