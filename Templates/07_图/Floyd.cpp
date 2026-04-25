@@ -17,12 +17,11 @@ pair<vector<vector<long long>>, vector<vector<long long>>> Floyd(vector<vector<l
                 path[i][j] = j;
         }
     }
-
-    for (int i = 0; i < n; i++)
+    for (int k = 0; k < n; k++)
     {
-        for (int j = 0; j < n; j++)
+        for (int i = 0; i < n; i++)
         {
-            for (int k = 0; k < n; k++)
+            for (int j = 0; j < n; j++)
             {
                 if (dist[i][j] > dist[i][k] + dist[k][j])
                 {
@@ -32,6 +31,7 @@ pair<vector<vector<long long>>, vector<vector<long long>>> Floyd(vector<vector<l
             }
         }
     }
+
     return {dist, path};
 }
 
